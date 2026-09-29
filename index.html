@@ -3,22 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Heart WEB</title>
-<meta name="theme-color" content="#0e0d1a">
+<title>Heart Orbit</title>
+<meta name="theme-color" content="#0c0b16">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google.com https://*.gstatic.com; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="style.css">
 <link rel="icon" id="fav" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><div style="display:flex;align-items:center;gap:12px"><img id="applogo" width="44" height="44" alt="" style="border-radius:12px"><div><h1>Heart WEB</h1><p>কাস্টম লিংক পোর্টাল</p></div></div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+<symbol id="i-set" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+</svg>
+<header><img id="applogo" width="46" height="46" alt=""><div><h1>Heart <b>Orbit</b></h1><p id="greet"></p></div></header>
+<label class="tools"><svg class="i"><use href="#i-search"/></svg><input id="q" type="search" placeholder="সাইট খুঁজুন…" autocomplete="off"></label>
+<div id="chips"></div>
 <main id="main"></main>
+<button id="fab" aria-label="নতুন সাইট"><svg class="i"><use href="#i-plus"/></svg></button>
 <nav>
-<button data-t="home" class="on"><span>⌂</span>হোম</button>
-<button data-t="fav"><span>★</span>বুকমার্ক</button>
-<button data-t="set"><span>⚙</span>সেটিংস</button>
+<button data-t="home" class="on"><svg class="i"><use href="#i-home"/></svg>হোম</button>
+<button data-t="fav"><svg class="i"><use href="#i-star"/></svg>প্রিয়</button>
+<button data-t="set"><svg class="i"><use href="#i-set"/></svg>সেটিংস</button>
 </nav>
 <div id="ov"><div id="sh"></div></div>
 <div id="toast"></div>
