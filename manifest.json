@@ -1,0 +1,16 @@
+{
+  "name": "Heart WEB",
+  "short_name": "Heart WEB",
+  "description": "কাস্টম লিংক পোর্টাল — সব পছন্দের ওয়েবসাইট এক জায়গায়",
+  "lang": "bn",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0d1a",
+  "theme_color": "#0e0d1a",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
