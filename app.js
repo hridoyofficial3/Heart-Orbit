@@ -18,9 +18,9 @@ const DEF=$("#fav").getAttribute("href");
 let LOGO=DEF;function applyLogo(){let v=DEF;try{const l=localStorage.getItem("wh_logo");if(l&&IMGR.test(l))v=l}catch(e){}
  LOGO=v;$("#applogo").src=v;$("#fav").href=v;let a=document.querySelector("link[rel=apple-touch-icon]");
  if(!a){a=document.createElement("link");a.rel="apple-touch-icon";document.head.appendChild(a)}a.href=v}
-let sites=[],meta=null,key=null,tab="home";
-try{sites=clean(JSON.parse(localStorage.getItem("wh_sites")||"[]"));meta=cleanMeta(JSON.parse(localStorage.getItem("wh_vault")||"null"))}catch(e){}
-if(!sites.length)sites=[["ফেসবুক","facebook.com"],["ইউটিউব","youtube.com"],["গুগল","google.com"]].map((a,i)=>({id:Date.now()+i,name:a[0],url:a[1],fav:0}));
+let sites=[],meta=null,key=null,tab="home",seed=true;
+try{seed=localStorage.getItem("wh_sites")===null;sites=clean(JSON.parse(localStorage.getItem("wh_sites")||"[]"));meta=cleanMeta(JSON.parse(localStorage.getItem("wh_vault")||"null"))}catch(e){}
+if(!sites.length&&seed)sites=[["ফেসবুক","facebook.com"],["ইউটিউব","youtube.com"],["গুগল","google.com"]].map((a,i)=>({id:Date.now()+i,name:a[0],url:a[1],fav:0}));
 const save=()=>{try{localStorage.setItem("wh_sites",JSON.stringify(sites))}catch(e){toast("সেভ করা যায়নি")}};
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -60,6 +60,7 @@ function needKey(then){
 /* ---- sheet ---- */
 function openSheet(h){$("#sh").innerHTML=h;$("#ov").classList.add("show")}
 function closeSheet(){$("#ov").classList.remove("show")}
+function ask(msg,yes){openSheet(`<h3>${esc(msg)}</h3><div class="row"><button class="btn" data-close>না</button><button class="btn d" id="yy">হ্যাঁ</button></div>`);$("#yy").onclick=()=>{closeSheet();yes()}}
 $("#ov").addEventListener("click",e=>{if(e.target.id==="ov"||e.target.closest("[data-close]"))closeSheet()});
 const wf=i=>{if(i._w)return;i._w=1;const ok=()=>i.naturalWidth>=24?i.classList.add("ok"):i.remove();if(i.complete)i.naturalWidth?ok():i.remove();else{i.onload=ok;i.onerror=()=>i.remove()}};
 new MutationObserver(()=>document.querySelectorAll("img[data-fav]").forEach(wf)).observe(document.body,{childList:true,subtree:true});
@@ -128,7 +129,7 @@ function settings(m){
  $("#alf").onchange=async e=>{try{localStorage.setItem("wh_logo",await cropImg(e.target.files[0],192));applyLogo();toast("লোগো বদলেছে")}catch(x){toast("ছবি পড়া যায়নি")}};
  $("#ar").onclick=()=>{try{localStorage.removeItem("wh_logo")}catch(e){}applyLogo();toast("ডিফল্ট লোগো ফিরেছে")};
  $("#lk").onclick=()=>{key=null;toast("লক হয়েছে")};
- $("#wp").onclick=()=>{if(confirm("সব সাইট, পাসওয়ার্ড, সেটিংস ও লোগো মুছে যাবে। নিশ্চিত?")){["wh_sites","wh_vault","wh_lock","wh_logo","wh_prefs"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});location.reload()}};
+ $("#wp").onclick=()=>ask("সব সাইট, পাসওয়ার্ড, সেটিংস ও লোগো মুছে যাবে। নিশ্চিত?",()=>{["wh_sites","wh_vault","wh_lock","wh_logo","wh_prefs"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});location.reload()});
  $("#ex").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({sites,meta,prefs:P})],{type:"application/json"}));a.download="heart-orbit-backup.json";a.click()};
  $("#im").onclick=()=>$("#fi").click();
  $("#fi").onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.sites))throw 0;sites=clean(d.sites);meta=cleanMeta(d.meta);key=null;P=parsePrefs(d.prefs);savePrefs();applyPrefs();save();if(meta)localStorage.setItem("wh_vault",JSON.stringify(meta));else localStorage.removeItem("wh_vault");toast("ফেরত আনা হয়েছে");tab="home";setNav()}catch(x){toast("ফাইলটি ঠিক নেই")}};
@@ -161,11 +162,11 @@ function form(s){
   const name=$("#fn").value.trim().slice(0,60),url=$("#fu").value.trim().slice(0,500),u=$("#fi2").value,p=$("#fp").value,ct=$("#fc").value.trim().slice(0,20);
   if(!name||!url)return toast("নাম ও URL দিন");
   if(norm(url)==="about:blank")return toast("URL ঠিক নেই");
-  if(n&&sites.some(x=>host(x.url)===host(url))&&!confirm("এই সাইট আগে থেকেই আছে। আবার যোগ করবেন?"))return;
   const fin=async()=>{const o=n?{id:Date.now(),fav:0,n:0}:s;o.name=name;o.url=url;if(ic)o.ic=ic;else delete o.ic;if(ct)o.cat=ct;else delete o.cat;
    if(u||p){if(u)o.u=await enc(u);if(p)o.p=await enc(p)}
    if(n)sites.push(o);save();closeSheet();render()};
-  (u||p)?needKey(fin):fin();
+  const go=()=>{(u||p)?needKey(fin):fin()};
+  if(n&&sites.some(x=>host(x.url)===host(url)))ask("এই সাইট আগে থেকেই আছে। আবার যোগ করবেন?",go);else go();
  };
 }
 
@@ -179,7 +180,7 @@ function detail(id){
  $("#do").onclick=()=>{closeSheet();openSite(s);render()};
  $("#df").onclick=()=>{s.fav=s.fav?0:1;save();closeSheet();render()};
  $("#de").onclick=()=>form(s);
- $("#dd").onclick=()=>{if(confirm("মুছে ফেলবেন?")){sites=sites.filter(x=>x.id!==id);save();closeSheet();render()}};
+ $("#dd").onclick=()=>ask("মুছে ফেলবেন?",()=>{sites=sites.filter(x=>x.id!==id);save();render()});
  const cp=f=>()=>needKey(async()=>{try{await navigator.clipboard.writeText(await dec(s[f]));toast("কপি হয়েছে, ৩০ সেকেন্ডে মুছে যাবে");setTimeout(()=>{try{navigator.clipboard.writeText("")}catch(e){}},30000)}catch(e){toast("কপি করা যায়নি")}});
  if($("#cu"))$("#cu").onclick=cp("u");if($("#cp"))$("#cp").onclick=cp("p");
 }
