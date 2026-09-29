@@ -176,20 +176,24 @@ function detail(id){
  openSheet(`<div class="dh"><div class="wrap">${icoHtml(s)}</div><div><h3>${esc(s.name)}</h3><p class="hint">${esc(host(s.url))}${s.n?" · "+bn(s.n)+" বার খোলা":""}</p></div></div>
  <button class="btn p w" id="do">ক্রোমে খুলুন</button>
  ${s.u||s.p?`<div class="row">${s.u?'<button class="btn" id="cu">আইডি কপি</button>':""}${s.p?'<button class="btn" id="cp">পাসওয়ার্ড কপি</button>':""}</div>`:""}
- <div class="acts"><button class="btn" id="df">${s.fav?"★ প্রিয় সরান":"☆ প্রিয়"}</button><button class="btn" id="de">✎ এডিট</button><button class="btn d" id="dd">🗑 মুছুন</button></div>`);
+ <div class="row"><button class="btn" id="df">${s.fav?"★ প্রিয় সরান":"☆ প্রিয়"}</button><button class="btn" id="de">✎ এডিট</button></div>
+ <button class="btn d w" id="dd">🗑 রিমুভ করুন</button>`);
  $("#do").onclick=()=>{closeSheet();openSite(s);render()};
  $("#df").onclick=()=>{s.fav=s.fav?0:1;save();closeSheet();render()};
  $("#de").onclick=()=>form(s);
- $("#dd").onclick=()=>ask("মুছে ফেলবেন?",()=>{sites=sites.filter(x=>x.id!==id);save();render()});
+ $("#dd").onclick=()=>ask("\""+s.name+"\" রিমুভ করবেন?",()=>{sites=sites.filter(x=>x!==s);save();render();toast("রিমুভ হয়েছে")});
  const cp=f=>()=>needKey(async()=>{try{await navigator.clipboard.writeText(await dec(s[f]));toast("কপি হয়েছে, ৩০ সেকেন্ডে মুছে যাবে");setTimeout(()=>{try{navigator.clipboard.writeText("")}catch(e){}},30000)}catch(e){toast("কপি করা যায়নি")}});
  if($("#cu"))$("#cu").onclick=cp("u");if($("#cp"))$("#cp").onclick=cp("p");
 }
 
 /* ---- events ---- */
 const M=$("#main");
-M.addEventListener("pointerdown",e=>{lp=0;clearTimeout(lpT);const t=e.target.closest("[data-o]");if(!t||e.target.closest("[data-m]"))return;lpT=setTimeout(()=>{lp=1;try{navigator.vibrate&&navigator.vibrate(15)}catch(x){}detail(+t.dataset.o)},450)});
-["pointerup","pointerleave","pointercancel","pointermove"].forEach(v=>M.addEventListener(v,()=>clearTimeout(lpT)));
-M.addEventListener("contextmenu",e=>{if(e.target.closest("[data-o]"))e.preventDefault()});
+let lx=0,ly=0;
+const lpOpen=t=>{if(lp)return;lp=1;clearTimeout(lpT);try{navigator.vibrate&&navigator.vibrate(15)}catch(x){}detail(+t.dataset.o)};
+M.addEventListener("pointerdown",e=>{lp=0;clearTimeout(lpT);const t=e.target.closest("[data-o]");if(!t||e.target.closest("[data-m]"))return;lx=e.clientX;ly=e.clientY;lpT=setTimeout(()=>lpOpen(t),450)});
+M.addEventListener("pointermove",e=>{if(Math.abs(e.clientX-lx)>12||Math.abs(e.clientY-ly)>12)clearTimeout(lpT)});
+["pointerup","pointercancel"].forEach(v=>M.addEventListener(v,()=>clearTimeout(lpT)));
+M.addEventListener("contextmenu",e=>{const t=e.target.closest("[data-o]");if(t){e.preventDefault();lpOpen(t)}});
 M.addEventListener("click",e=>{
  if(lp){lp=0;return}
  const mb=e.target.closest("[data-m]");if(mb)return detail(+mb.dataset.m);
