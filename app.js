@@ -55,13 +55,13 @@ function needKey(then,back){
  if(key)return then();
  const first=!meta;
  openSheet(`<h3>${first?"পিন সেট করুন":"পিন দিন"}</h3><p class="hint">${first?"আইডি/পাসওয়ার্ড এই পিন দিয়ে লক থাকবে। পিন ভুলে গেলে পাসওয়ার্ড উদ্ধার করা যাবে না।":"সেভ করা পাসওয়ার্ড দেখতে পিন লাগবে।"}</p>
- <label>${first?"পিন (কমপক্ষে ৮ অক্ষর)":"পিন"}</label><input id="pin" type="password" autocomplete="off">${first?'<label>পিন আবার লিখুন</label><input id="pin2" type="password" autocomplete="off">':""}
+ <label>${first?"পিন (কমপক্ষে ৬ অক্ষর)":"পিন"}</label><input id="pin" type="password" autocomplete="off">${first?'<label>পিন আবার লিখুন</label><input id="pin2" type="password" autocomplete="off">':""}
  <div class="row"><button class="btn" id="pcx">বাতিল</button><button class="btn p" id="pok">ঠিক আছে</button></div>`);
  $("#pcx").onclick=()=>{closeSheet();if(back)back()};
  $("#pok").onclick=async()=>{
   const pin=$("#pin").value;let L={};try{L=JSON.parse(localStorage.getItem("wh_lock")||"{}")}catch(e){}
   if(L.t>Date.now())return toast("অনেকবার ভুল হয়েছে, "+bn(Math.ceil((L.t-Date.now())/1000))+" সেকেন্ড পরে চেষ্টা করুন");
-  if(first&&pin.length<8)return toast("কমপক্ষে ৮ অক্ষরের পিন দিন");if(first&&pin!==$("#pin2").value)return toast("দুই পিন মিলছে না");
+  if(first&&pin.length<6)return toast("কমপক্ষে ৬ অক্ষরের পিন দিন");if(first&&pin!==$("#pin2").value)return toast("দুই পিন মিলছে না");
   if(!pin)return toast("পিন দিন");
   try{
    if(first){const salt=crypto.getRandomValues(new Uint8Array(16));key=await derive(pin,salt,250000);meta={salt:b64(salt),it:250000,chk:await enc("ok")};localStorage.setItem("wh_vault",JSON.stringify(meta))}
@@ -73,8 +73,8 @@ function needKey(then,back){
 }
 
 function chPin(){if(!meta)return toast("এখনো কোনো পিন সেট করা নেই");
- needKey(()=>{openSheet(`<h3>পিন বদলান</h3><label>নতুন পিন (কমপক্ষে ৮ অক্ষর)</label><input id="n1" type="password" autocomplete="off"><label>আবার লিখুন</label><input id="n2" type="password" autocomplete="off"><div class="row"><button class="btn" data-close="1">বাতিল</button><button class="btn p" id="nk">বদলান</button></div>`);
-  $("#nk").onclick=async()=>{const a=$("#n1").value;if(a.length<8)return toast("কমপক্ষে ৮ অক্ষরের পিন দিন");if(a!==$("#n2").value)return toast("দুই পিন মিলছে না");
+ needKey(()=>{openSheet(`<h3>পিন বদলান</h3><label>নতুন পিন (কমপক্ষে ৬ অক্ষর)</label><input id="n1" type="password" autocomplete="off"><label>আবার লিখুন</label><input id="n2" type="password" autocomplete="off"><div class="row"><button class="btn" data-close="1">বাতিল</button><button class="btn p" id="nk">বদলান</button></div>`);
+  $("#nk").onclick=async()=>{const a=$("#n1").value;if(a.length<6)return toast("কমপক্ষে ৬ অক্ষরের পিন দিন");if(a!==$("#n2").value)return toast("দুই পিন মিলছে না");
    const old=key;try{const salt=crypto.getRandomValues(new Uint8Array(16)),nk=await derive(a,salt,250000),pl=[];
     const all=[...sites,...BIN.map(x=>x.s)];for(const s of all)pl.push([s.u?await dec(s.u):null,s.p?await dec(s.p):null]);
     key=nk;const m={salt:b64(salt),it:250000,chk:await enc("ok")};
@@ -94,7 +94,7 @@ const wf=i=>{if(i._w)return;i._w=1;const ok=()=>i.naturalWidth>=24?i.classList.a
 new MutationObserver(()=>document.querySelectorAll("img[data-fav]").forEach(wf)).observe(document.body,{childList:true,subtree:true});
 
 /* ---- prefs ---- */
-const parsePrefs=x=>{x=x||{};return{view:x.view==="list"?"list":"grid",cols:[3,4,5].includes(x.cols)?x.cols:4,accent:[345,265,175,38,215].includes(x.accent)?x.accent:345,theme:["auto","dark","light"].includes(x.theme)?x.theme:"auto",sort:["added","name","used"].includes(x.sort)?x.sort:"added",auto:x.auto===0?0:1,group:x.group===0?0:1,lang:x.lang==="en"?"en":"bn",dsc:x.dsc===1?1:0,fs:[0,1,2].includes(x.fs)?x.fs:0,hc:x.hc===1?1:0,sg:x.sg===0?0:1,gd:x.gd===1?1:0,al:x.al===1?1:0,hid:Array.isArray(x.hid)?[...new Set(x.hid.filter(c=>typeof c==="string"&&c.length<=24))].slice(0,40):[]}};
+const parsePrefs=x=>{x=x||{};return{view:x.view==="list"?"list":"grid",cols:[3,4,5].includes(x.cols)?x.cols:4,accent:[345,265,175,38,215].includes(x.accent)?x.accent:345,theme:["auto","dark","light"].includes(x.theme)?x.theme:"auto",sort:["added","name","used"].includes(x.sort)?x.sort:"added",auto:x.auto===0?0:1,group:x.group===0?0:1,lang:x.lang==="en"?"en":"bn",dsc:x.dsc===1?1:0,fs:[0,1,2].includes(x.fs)?x.fs:0,hc:x.hc===1?1:0,sg2:x.sg2===1?1:0,rcv:x.rcv===0?0:1,rcx:+x.rcx>0?+x.rcx:0,gd:x.gd===1?1:0,al:x.al===1?1:0,hid:Array.isArray(x.hid)?[...new Set(x.hid.filter(c=>typeof c==="string"&&c.length<=24))].slice(0,40):[]}};
 let P=parsePrefs();try{P=parsePrefs(JSON.parse(localStorage.getItem("wh_prefs")||"{}"))}catch(e){}
 const savePrefs=()=>{try{localStorage.setItem("wh_prefs",JSON.stringify(P))}catch(e){}};
 function applyPrefs(){const r=document.documentElement;r.style.setProperty("--h",P.accent);r.style.setProperty("--cols",P.cols);if(P.theme==="auto")delete r.dataset.theme;else r.dataset.theme=P.theme;r.lang=P.lang;r.style.setProperty("--z",[1,1.15,1.3][P.fs]);if(P.hc)r.dataset.hc="1";else delete r.dataset.hc;trAll()}
@@ -139,7 +139,7 @@ let ro=false,sm=false;const selSet=new Set();
 function sugg(){const n=new Date(),H=n.getHours()+n.getMinutes()/60,since=Date.now()-60*864e5,c={};let t=0;
  for(const x of LOG){if(x[1]<since)continue;const d=new Date(x[1]);let g=Math.abs(d.getHours()+d.getMinutes()/60-H);g=Math.min(g,24-g);if(g<=1.5){c[x[0]]=(c[x[0]]||0)+1;t++}}
  if(t<5)return[];return vsites().filter(s=>c[s.id]>=2).sort((a,b)=>c[b.id]-c[a.id]).slice(0,P.cols)}
-function guide(){const g=[["➕","নতুন সাইট যোগ","নিচের + বাটন চাপুন। অন্য অ্যাপ থেকে Share করেও যোগ করা যায় (অ্যাপ ইনস্টল থাকলে)।"],["👆","আইকন চেপে ধরুন","এডিট, প্রিয় (★), বিবরণ ও পাসওয়ার্ডের অপশন আসবে।"],["⇅","সাজানো ও বাছাই","সার্চ বারের ⇅ দিয়ে ক্রম সাজান, ☑ দিয়ে একসাথে অনেক সাইট বাছাই করুন।"],["🔒","পাসওয়ার্ড লক","আইডি/পাসওয়ার্ড পিন (কমপক্ষে ৮ অক্ষর) দিয়ে লক থাকে। পিন ভুললে উদ্ধার হয় না।"],["💾","ব্যাকআপ","ডেটা শুধু এই ফোনেই থাকে। সেটিংস → ব্যাকআপ থেকে মাঝে মাঝে ফাইল নামিয়ে রাখুন।"],["📲","ইনস্টল","ক্রোমে ⋮ → \"Add to Home screen\" দিলে অ্যাপের মতো খুলবে।"]];
+function guide(){const g=[["➕","নতুন সাইট যোগ","নিচের + বাটন চাপুন। অন্য অ্যাপ থেকে Share করেও যোগ করা যায় (অ্যাপ ইনস্টল থাকলে)।"],["👆","আইকন চেপে ধরুন","এডিট, প্রিয় (★), বিবরণ ও পাসওয়ার্ডের অপশন আসবে।"],["⇅","সাজানো ও বাছাই","সার্চ বারের ⇅ দিয়ে ক্রম সাজান, ☑ দিয়ে একসাথে অনেক সাইট বাছাই করুন।"],["🔒","পাসওয়ার্ড লক","আইডি/পাসওয়ার্ড পিন (কমপক্ষে ৬ অক্ষর) দিয়ে লক থাকে। পিন ভুললে উদ্ধার হয় না।"],["💾","ব্যাকআপ","ডেটা শুধু এই ফোনেই থাকে। সেটিংস → ব্যাকআপ থেকে মাঝে মাঝে ফাইল নামিয়ে রাখুন।"],["📲","ইনস্টল","ক্রোমে ⋮ → \"Add to Home screen\" দিলে অ্যাপের মতো খুলবে।"]];
  P.gd=1;savePrefs();openSheet(`<h3>👋 Heart Orbit-এ স্বাগতম</h3>${g.map(x=>`<div class="li"><div class="tx"><b>${x[0]} ${x[1]}</b><small>${x[2]}</small></div></div>`).join("")}<button class="btn p w" data-close="1" id="gok">বুঝেছি, শুরু করি</button>`)}
 function openAll(l){const done=new Set(),cnt=()=>`${bn(l.length)}টি সাইটের মধ্যে ${bn(done.size)}টি খোলা হয়েছে`;
  openSheet(`<h3>↗ সব খুলুন</h3><p class="hint">প্রতিটি সাইটে একবার করে ট্যাপ করুন। ব্রাউজার একসাথে অনেক ট্যাব খুলতে দেয় না।</p><p class="hint" id="oac"></p>${l.map((s,i)=>`<div class="li" role="button" tabindex="0" data-oi="${i}"><div class="tx"><b>${esc(s.name)}</b><small>${esc(host(s.url))}</small></div><span class="oam">↗</span></div>`).join("")}<button class="btn w" data-close="1">বন্ধ করুন</button>`);
@@ -162,12 +162,12 @@ function render(){
  if(!l.length)h+=`<div class="empty">${q?"কিছু পাওয়া যায়নি":cat?"এই ক্যাটাগরিতে কোনো সাইট নেই।<br>+ বাটনে চেপে যোগ করুন।":tab==="fav"?"কোনো প্রিয় সাইট নেই।<br>আইকন চেপে ধরে ★ দিন।":"কোনো সাইট নেই।<br>নিচের + বাটনে চেপে যোগ করুন।"}</div>`;
  else if(ro)h+=P.view==="grid"?`<div id="rl" class="grid rg">${l.map(rgHtml).join("")}</div>`:`<div id="rl">${l.map(roHtml).join("")}</div>`;
  else{
-  const rc=tab==="home"&&!q&&!cat?vsites().filter(s=>s.t).sort((a,b)=>b.t-a.t).slice(0,P.cols):[];
+  const rc=P.rcv&&tab==="home"&&!q&&!cat?vsites().filter(s=>s.t&&s.t>P.rcx).sort((a,b)=>b.t-a.t).slice(0,P.cols):[];
   const fvs=tab==="home"&&!q&&!cat?vsites().filter(s=>s.fav).slice(0,P.cols):[];
-  const sg=P.sg&&tab==="home"&&!q&&!cat&&!sm?sugg():[];
+  const sg=P.sg2&&tab==="home"&&!q&&!cat&&!sm?sugg():[];
   if(sg.length)h+=`<section class="rc"><h2>এই সময়ে সাধারণত খোলেন</h2><div class="grid">${sg.map(appHtml).join("")}</div></section>`;
   if(fvs.length)h+=`<section class="rc"><h2>প্রিয়</h2><div class="grid">${fvs.map(appHtml).join("")}</div></section>`;
-  if(rc.length)h+=`<section class="rc"><h2>সম্প্রতি খোলা</h2><div class="grid">${rc.map(appHtml).join("")}</div></section>`;
+  if(rc.length)h+=`<section class="rc"><h2>সম্প্রতি খোলা<span style="flex:1"></span><button type="button" class="mo" data-rca="clr" aria-label="তালিকা মুছুন">${ic("trash")}</button><button type="button" class="mo" data-rca="off" aria-label="এই তালিকা বন্ধ করুন">${ic("x")}</button></h2><div class="grid">${rc.map(appHtml).join("")}</div></section>`;
   if(rc.length||fvs.length||sg.length)h+=`<h2 class="hd">সব সাইট</h2>`;
   const blk=a=>P.view==="list"?a.map(rowHtml).join(""):`<div class="grid">${a.map(appHtml).join("")}</div>`;
   if(P.group&&!cat&&!q){
@@ -178,6 +178,7 @@ function render(){
   h+=`<p class="tip">টিপস: আইকন চেপে ধরলে এডিট, প্রিয় ও পাসওয়ার্ডের অপশন আসে। ক্রম সাজাতে সার্চ বারের ⇅ বাটন চাপুন। ক্যাটাগরির নাম চেপে ধরে টেনে আগে-পিছে করুন।</p>`;
  }
  m.innerHTML=h;
+ m.querySelectorAll("[data-rca]").forEach(b=>b.onclick=()=>{if(b.dataset.rca==="clr"){const o=P.rcx;P.rcx=Date.now();savePrefs();render();toast("সম্প্রতি খোলা তালিকা মুছে ফেলা হয়েছে",["ফিরিয়ে আনুন",()=>{P.rcx=o;savePrefs();render()}])}else{P.rcv=0;savePrefs();render();toast("সম্প্রতি খোলা বন্ধ করা হয়েছে",["ফিরিয়ে আনুন",()=>{P.rcv=1;savePrefs();render()}])}});
 }
 const seg=(k,o)=>`<div class="seg">${o.map(x=>`<button data-p="${k}" data-v="${x[0]}" class="${P[k]===x[0]?"on":""}">${x[1]}</button>`).join("")}</div>`;
 const tog=(k,l)=>`<div class="trow"><span>${l}</span><button type="button" role="switch" class="tg${P[k]?" on":""}" aria-checked="${P[k]?"true":"false"}" aria-label="${l}" data-p="${k}" data-v="${P[k]?0:1}"></button></div>`;
@@ -226,7 +227,7 @@ function settings(m){
  m.innerHTML=hero()
  +grp("ব্যক্তিগতকরণ")
  +sec("lang","globe|ভাষা / Language",`${seg("lang",[["bn","বাংলা"],["en","English"]])}`)
- +sec("look","palette|চেহারা",`<p class="lbl">থিম</p>${seg("theme",[["auto","অটো"],["dark","ডার্ক"],["light","লাইট"]])}<p class="lbl">রঙ</p><div class="sws">${[345,265,175,38,215].map(h=>`<button class="sw${P.accent===h?" on":""}" style="--s:${h}" data-p="accent" data-v="${h}" aria-label="রঙ বাছুন"></button>`).join("")}</div><p class="lbl">দেখানোর ধরন</p>${seg("view",[["grid","গ্রিড"],["list","লিস্ট"]])}<p class="lbl">প্রতি সারিতে আইকন</p>${seg("cols",[[3,"৩টি"],[4,"৪টি"],[5,"৫টি"]])}${tog("dsc","আইকনের নিচে বিবরণ")}${tog("sg","সময় অনুযায়ী পরামর্শ (হোমে)")}<p class="lbl">লেখার আকার</p>${seg("fs",[[0,"সাধারণ"],[1,"বড়"],[2,"আরও বড়"]])}${tog("hc","হাই কন্ট্রাস্ট")}<p class="lbl">সাজানো</p>${seg("sort",[["added","নিজের ক্রম"],["name","নাম"],["used","বেশি ব্যবহৃত"]])}`)
+ +sec("look","palette|চেহারা",`<p class="lbl">থিম</p>${seg("theme",[["auto","অটো"],["dark","ডার্ক"],["light","লাইট"]])}<p class="lbl">রঙ</p><div class="sws">${[345,265,175,38,215].map(h=>`<button class="sw${P.accent===h?" on":""}" style="--s:${h}" data-p="accent" data-v="${h}" aria-label="রঙ বাছুন"></button>`).join("")}</div><p class="lbl">দেখানোর ধরন</p>${seg("view",[["grid","গ্রিড"],["list","লিস্ট"]])}<p class="lbl">প্রতি সারিতে আইকন</p>${seg("cols",[[3,"৩টি"],[4,"৪টি"],[5,"৫টি"]])}${tog("dsc","আইকনের নিচে বিবরণ")}${tog("sg2","সময় অনুযায়ী পরামর্শ (হোমে)")}${tog("rcv","সম্প্রতি খোলা দেখান (হোমে)")}<button class="btn w" id="rcc" style="margin:6px 0">${ic("trash")}সম্প্রতি খোলা তালিকা মুছুন</button><p class="lbl">লেখার আকার</p>${seg("fs",[[0,"সাধারণ"],[1,"বড়"],[2,"আরও বড়"]])}${tog("hc","হাই কন্ট্রাস্ট")}<p class="lbl">সাজানো</p>${seg("sort",[["added","নিজের ক্রম"],["name","নাম"],["used","বেশি ব্যবহৃত"]])}`)
  +sec("cat","folder|ক্যাটাগরি ও ক্রম",`${tog("group","হোমে ক্যাটাগরি অনুযায়ী গ্রুপ")}<button class="btn w" id="cmb">${ic("folder")}ক্যাটাগরি সাজান ও ম্যানেজ</button><button class="btn w" id="rob2">${ic("sort")}আইকনের ক্রম সাজান</button>`)
  +sec("logo","image|লোগো",`<p>সাইটের নিজের লোগো থাকলে সেটি দেখানো হয়, না থাকলে অ্যাপের লোগো।</p>${tog("auto","সাইটের লোগো অনলাইন থেকে আনা")}<p class="hint" style="margin-top:8px">চালু থাকলে সাইটের ডোমেইন নাম গুগলের লোগো সার্ভিসে যায়।</p><p class="lbl">অ্যাপের লোগো</p><div class="rw"><button class="btn" id="al">${ic("image")}নিজের ছবি</button><button class="btn" id="ar">${ic("undo")}ডিফল্ট</button></div><input type="file" id="alf" accept="image/*" hidden>`)
  +grp("ডেটা ও টুলস")
@@ -244,7 +245,7 @@ function settings(m){
  m.querySelectorAll("details").forEach(x=>{x.querySelector("summary").addEventListener("click",()=>{x.dataset.u=1});
   x.ontoggle=()=>{if(x.open){m.querySelectorAll("details").forEach(y=>{if(y!==x&&y.open){y.open=false;oS.delete(y.dataset.sec)}});oS.add(x.dataset.sec);
     if(x.dataset.u){requestAnimationFrame(()=>x.scrollIntoView({block:"nearest",behavior:"smooth"}))}}else oS.delete(x.dataset.sec);delete x.dataset.u}});
- m.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const k=b.dataset.p,v=b.dataset.v;P[k]=["cols","accent","auto","group","dsc","fs","hc","sg"].includes(k)?+v:v;savePrefs();applyPrefs();render()});
+ m.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const k=b.dataset.p,v=b.dataset.v;P[k]=["cols","accent","auto","group","dsc","fs","hc","sg2","rcv"].includes(k)?+v:v;savePrefs();applyPrefs();render()});
  m.querySelectorAll("[data-br]").forEach(b=>b.onclick=()=>{const i=+b.dataset.br,x=BIN[i];if(!x)return;const s=x.s;if(sites.some(y=>y.id===s.id))s.id=Date.now()*1000+i;sites.push(s);BIN.splice(i,1);saveBin();save();toast("ফিরিয়ে আনা হয়েছে");render()});
  m.querySelectorAll("[data-bx]").forEach(b=>b.onclick=()=>ask("এটি চিরতরে মুছবেন?",()=>{BIN.splice(+b.dataset.bx,1);saveBin();render()}));
  if($("#bne"))$("#bne").onclick=()=>ask("বিন খালি করবেন? এগুলো আর ফেরানো যাবে না।",()=>{BIN=[];saveBin();render()});
@@ -255,6 +256,7 @@ function settings(m){
  $("#rob2").onclick=()=>{tab="home";cat="";ro=true;if(P.sort!=="added"){P.sort="added";savePrefs()}setNav()};
  $("#al").onclick=()=>$("#alf").click();
  $("#alf").onchange=async e=>{try{localStorage.setItem("wh_logo",await cropImg(e.target.files[0],192));applyLogo();toast("লোগো বদলেছে")}catch(x){toast("ছবি পড়া যায়নি")}};
+ $("#rcc").onclick=()=>{P.rcx=Date.now();savePrefs();render();toast("সম্প্রতি খোলা তালিকা মুছে ফেলা হয়েছে")};
  $("#ar").onclick=()=>{try{localStorage.removeItem("wh_logo")}catch(e){}applyLogo();toast("ডিফল্ট লোগো ফিরেছে")};
  $("#lk").onclick=()=>{relock();toast("লক হয়েছে");if(P.al&&meta)gate()};
  $("#cpn").onclick=chPin;
@@ -485,9 +487,9 @@ function vlock(){const w=vo;vo=0;vk=null;vl=[];vm=null;ve=0;vx=0;return w}
 function vsweep(){if(!vo)return;vlock();$("#sh").innerHTML="";$("#ov").style.visibility="";$("#ov").classList.remove("show")}
 function vopen(){if(vo||$("#ov").classList.contains("show"))return;const m=vload();if(m===0)return;if(m&&m.l>Date.now())return;vm=m;vo=1;if(m)vask();else vsetup()}
 function vsetup(){
- openSheet(`<h3>পিন সেট করুন</h3><p class="hint">পিন ভুলে গেলে এই তালিকা ফেরত পাওয়া যাবে না।</p><label>পিন (কমপক্ষে ৮ অক্ষর)</label><input id="vp" type="password" autocomplete="off"><label>পিন আবার লিখুন</label><input id="vp2" type="password" autocomplete="off"><div class="row"><button class="btn" id="vc">বাতিল</button><button class="btn p" id="vg">ঠিক আছে</button></div>`);
+ openSheet(`<h3>পিন সেট করুন</h3><p class="hint">পিন ভুলে গেলে এই তালিকা ফেরত পাওয়া যাবে না।</p><label>পিন (কমপক্ষে ৬ অক্ষর)</label><input id="vp" type="password" autocomplete="off"><label>পিন আবার লিখুন</label><input id="vp2" type="password" autocomplete="off"><div class="row"><button class="btn" id="vc">বাতিল</button><button class="btn p" id="vg">ঠিক আছে</button></div>`);
  $("#vc").onclick=closeSheet;
- $("#vg").onclick=async()=>{if(vbz)return;const a=$("#vp").value;if(a.length<8)return toast("কমপক্ষে ৮ অক্ষরের পিন দিন");if(a!==$("#vp2").value)return toast("দুই পিন মিলছে না");
+ $("#vg").onclick=async()=>{if(vbz)return;const a=$("#vp").value;if(a.length<6)return toast("কমপক্ষে ৬ অক্ষরের পিন দিন");if(a!==$("#vp2").value)return toast("দুই পিন মিলছে না");
   vbz=1;let ok=0;
   try{const salt=crypto.getRandomValues(new Uint8Array(16)),k=await derive(a,salt,250000);if(!vo){vbz=0;return}vk=k;vm={s:vb64(salt),i:250000,d:"",f:0,l:0};vl=[];ok=await vsave()}
   catch(e){vbz=0;vk=null;vm=null;return toast("এই ব্রাউজারে লক সাপোর্ট নেই")}
@@ -535,9 +537,9 @@ function vtools(){
    ask("বর্তমান তালিকা বদলে ফেলবেন? ব্যাকআপের পিন লাগবে।",()=>{try{localStorage.setItem(VK,JSON.stringify({s:d.s,i,d:d.d,f:0,l:0}));toast("ফেরত আনা হয়েছে")}catch(x){toast("সেভ করা যায়নি")}})}catch(x){toast("ফাইলটি ঠিক নেই")}};
  $("#vpc").onclick=vpin}
 function vpin(){
- openSheet(`<h3>পিন বদলান</h3><label>নতুন পিন (কমপক্ষে ৮ অক্ষর)</label><input id="vn1" type="password" autocomplete="off"><label>আবার লিখুন</label><input id="vn2" type="password" autocomplete="off"><div class="row"><button class="btn" id="vb">বাতিল</button><button class="btn p" id="vs">বদলান</button></div>`);
+ openSheet(`<h3>পিন বদলান</h3><label>নতুন পিন (কমপক্ষে ৬ অক্ষর)</label><input id="vn1" type="password" autocomplete="off"><label>আবার লিখুন</label><input id="vn2" type="password" autocomplete="off"><div class="row"><button class="btn" id="vb">বাতিল</button><button class="btn p" id="vs">বদলান</button></div>`);
  $("#vb").onclick=()=>vtools();
- $("#vs").onclick=async()=>{if(vbz)return;const a=$("#vn1").value;if(a.length<8)return toast("কমপক্ষে ৮ অক্ষরের পিন দিন");if(a!==$("#vn2").value)return toast("দুই পিন মিলছে না");
+ $("#vs").onclick=async()=>{if(vbz)return;const a=$("#vn1").value;if(a.length<6)return toast("কমপক্ষে ৬ অক্ষরের পিন দিন");if(a!==$("#vn2").value)return toast("দুই পিন মিলছে না");
   vbz=1;const cur=vm,ok=vk,om={...cur};
   try{const salt=crypto.getRandomValues(new Uint8Array(16)),nk=await derive(a,salt,250000);if(!vo||vm!==cur){vbz=0;return}vk=nk;vm.s=vb64(salt);vm.i=250000;if(!await vsave())throw 0;vbz=0;toast("পিন বদলেছে")}
   catch(e){vbz=0;if(vo&&vm===cur){vk=ok;Object.assign(vm,om);toast("পিন বদলানো যায়নি")}}
