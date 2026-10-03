@@ -281,7 +281,7 @@ function settings(m){
  +grp("সহায়তা")
  +sec("use","info|ক্রোমে ব্যবহার",`<p>ক্রোমে এই পেজ খুলে ⋮ → "Add to Home screen" দিন। কোনো সাইটে ট্যাপ করলে সেটি ক্রোমের নতুন ট্যাবে খুলবে। সাইটে একবার লগইন করে "Save password" দিলে ক্রোমই পরে অটো-ফিল করবে।</p><button class="btn w" id="gdb">${ic("help")}শুরুর গাইড দেখুন</button>`)
  +sec("about","info|সম্পর্কে",`<p class="lbl">এই অ্যাপ কেন</p><p>পছন্দের ওয়েবসাইটগুলো ব্রাউজারের বুকমার্ক, হিস্ট্রি আর চ্যাটে ছড়িয়ে থাকে। Heart Orbit সেগুলো এক জায়গায় রাখে, যেন এক ট্যাপেই খুলতে পারেন।</p><p class="lbl">কী কী করা যায়</p><p>• সাইট যোগ করে ক্যাটাগরিতে সাজানো, প্রিয় চিহ্ন দেওয়া ও খুঁজে পাওয়া</p><p>• ড্র্যাগ করে ক্রম বদলানো, গ্রিড বা লিস্ট ভিউ, থিম ও রং বাছা</p><p>• সাইটের আইডি ও পাসওয়ার্ড পিন দিয়ে লক করে রাখা</p><p>• ব্যাকআপ নেওয়া ও ফেরত আনা; মুছে ফেলা সাইট ৩০ দিন রিসাইকেল বিনে থাকে</p><p>• ইন্টারনেট ছাড়াও অ্যাপ খোলে (সাইটগুলো খুলতে অবশ্য নেট লাগে)</p><p class="lbl">প্রাইভেসি</p><p>• আপনার সব ডেটা শুধু এই ফোনের ব্রাউজার স্টোরেজে থাকে। কোনো সার্ভার, অ্যাকাউন্ট, বিজ্ঞাপন বা ট্র্যাকিং নেই; আপনার তথ্য ডেভেলপারের কাছে যায় না।</p><p>• সেভ করা আইডি ও পাসওয়ার্ড AES-256 দিয়ে এনক্রিপ্ট হয়ে থাকে এবং আপনার পিন ছাড়া খোলে না। পিন ভুলে গেলে সেগুলো ফেরত পাওয়ার উপায় নেই; পিন যত লম্বা, তত নিরাপদ।</p><p>• সাইটের লোগো অনলাইন থেকে আনা চালু থাকলে সাইটের ডোমেইন নাম গুগলের লোগো সার্ভিসে যায়। চাইলে সেটিংস → লোগো থেকে বন্ধ করতে পারেন।</p><p>• লুকানো ক্যাটাগরি ও অ্যাপ-লক চোখের আড়াল করার ব্যবস্থা, এনক্রিপশন নয়। ব্যাকআপ ফাইলে আপনার সব সাইটের তালিকা থাকে, তাই ফাইলটি নিরাপদ জায়গায় রাখুন।</p><p>• ব্রাউজারের ডেটা মুছলে অ্যাপের সব তথ্যও মুছে যায়, তাই মাঝে মাঝে ব্যাকআপ নিন।</p><p>• কোনো সাইটে ট্যাপ করলে সেটি ক্রোমের নতুন ট্যাবে খোলে; তখন ওই সাইটের নিজের প্রাইভেসি নীতি প্রযোজ্য।</p><p class="lbl">ডেভেলপার</p><p><b>Imran Islam Hridoy</b></p><button class="btn w" id="fbl">${ic("globe")}Facebook: facebook.com/hridoyofficial3</button>`)
- +`<p class="ver">Heart Orbit · v50</p>`;
+ +`<p class="ver">Heart Orbit · v51</p>`;
  m.querySelectorAll("details").forEach(x=>{x.querySelector("summary").addEventListener("click",()=>{x.dataset.u=1});
   x.ontoggle=()=>{if(x.open){m.querySelectorAll("details").forEach(y=>{if(y!==x&&y.open){y.open=false;oS.delete(y.dataset.sec)}});oS.add(x.dataset.sec);
     if(x.dataset.u){requestAnimationFrame(()=>x.scrollIntoView({block:"nearest",behavior:"smooth"}))}}else oS.delete(x.dataset.sec);delete x.dataset.u}});
@@ -628,7 +628,7 @@ function vpin(){let len=8;const back=()=>{vkill();vtools()};
    vk=nk;vm.s=vb64(salt);vm.i=KDF;vm.n=p.length;if(!await vsave())throw 0;toast("পিন বদলেছে");vview();return true}
   catch(e){if(vo&&vm===cur){vk=ok;Object.assign(vm,om)}return"পিন বদলানো যায়নি"}}});
  s1()}
-$("#applogo").addEventListener("click",()=>{const n=Date.now();vtt=vtt.filter(t=>n-t<3000);vtt.push(n);if(vtt.length>=5){vtt=[];vopen()}});
+$("#applogo").addEventListener("click",()=>{const n=Date.now();vtt=vtt.filter(t=>n-t<3000);vtt.push(n);if(vtt.length>=3){vtt=[];vopen()}});
 document.addEventListener("visibilitychange",()=>{clearTimeout(vh);if(!vo)return;$("#ov").style.visibility=document.hidden?"hidden":"";{const k=$("#vlk");if(k)k.style.visibility=document.hidden?"hidden":""}if(document.hidden)vh=setTimeout(vsweep,45000)});
 let idle,hid;
 const relock=()=>{key=null;vsweep();if(showHid){showHid=false;render()}};
