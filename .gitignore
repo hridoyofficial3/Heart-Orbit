@@ -12,3 +12,6 @@ heart-orbit-bookmarks.html
 # misc
 node_modules/
 .DS_Store
+# apk build (generated in CI)
+android/
+www/
