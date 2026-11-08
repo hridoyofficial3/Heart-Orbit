@@ -19,12 +19,40 @@
     var B=plug("Browser");
     if(B&&B.open)return B.open({url:u});
   };
+  /* ---- choose which browser opens a site ---- */
+  var BR_KEY="wh_browser";
+  var okPkg=function(p){return typeof p==="string"&&p.length<=100&&/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(p)};
+  var KNOWN={"com.android.chrome":"Chrome","org.mozilla.firefox":"Firefox","org.mozilla.firefox_beta":"Firefox Beta","com.brave.browser":"Brave","com.microsoft.emmx":"Edge","com.sec.android.app.sbrowser":"Samsung Internet","com.opera.browser":"Opera","com.opera.mini.native":"Opera Mini","com.kiwibrowser.browser":"Kiwi","com.duckduckgo.mobile.android":"DuckDuckGo","com.vivaldi.browser":"Vivaldi","com.UCMobile.intl":"UC Browser"};
+  var brCache=null;
+  var browsers=async function(){
+    if(brCache)return brCache;
+    var P=plug("BrowserPicker");
+    if(!P||!P.getBrowsers)return [];
+    try{
+      var r=await P.getBrowsers();
+      brCache=((r&&r.browsers)||[]).filter(function(b){return b&&okPkg(b.pkg)}).map(function(b){return {pkg:b.pkg,label:String(KNOWN[b.pkg]||b.label||b.pkg).slice(0,40)}});
+      brCache.sort(function(a,b){return a.label.localeCompare(b.label)});
+    }catch(e){return []}
+    return brCache;
+  };
+  var openIn=function(u,pkg){
+    var P=plug("BrowserPicker");
+    if(P&&P.open&&okPkg(pkg))return P.open({url:u,pkg:pkg}).then(function(r){
+      if(r&&r.fallback)say("ওই ব্রাউজার পাওয়া যায়নি, সাধারণভাবে খোলা হয়েছে");
+    }).catch(function(){return openExt(u)});
+    return openExt(u);
+  };
+  /* per-site browser wins, then the global default, then the phone's own default */
+  window.HO_openSite=function(u,pkg){
+    var p=okPkg(pkg)?pkg:ls(BR_KEY);
+    return okPkg(p)?openIn(u,p):openExt(u);
+  };
   window.open=function(u){
     try{
       u=String(u||"");
       var m=u.match(/^intent:.*?S\.browser_fallback_url=([^;]+)/i);
       if(m)u=decodeURIComponent(m[1]);
-      if(/^https?:\/\//i.test(u))openExt(u);
+      if(/^https?:\/\//i.test(u))window.HO_openSite(u);
     }catch(e){}
     return null;
   };
@@ -118,6 +146,14 @@
       return on;
     },
     toggleUp:function(){var on=!opt("n_up");setOpt("n_up",on);return on},
+    browsers:browsers,
+    getDefault:function(){var v=ls(BR_KEY);return okPkg(v)?v:""},
+    setDefault:function(p){if(okPkg(p))ls(BR_KEY,p);else try{localStorage.removeItem(BR_KEY)}catch(e){}},
+    label:function(p){
+      if(KNOWN[p])return KNOWN[p];
+      var b=(brCache||[]).filter(function(x){return x.pkg===p})[0];
+      return b?b.label:String(p||"");
+    },
     check:check,
     init:function(h){
       ui=h||{};

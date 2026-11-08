@@ -40,7 +40,7 @@ const pinErr=p=>{if(p.length<PINMIN)return"কমপক্ষে ৮ অক্�
 const str=(v,n)=>typeof v==="string"?v.slice(0,n):"";
 function clean(a){return(Array.isArray(a)?a:[]).slice(0,500).map((x,i)=>{if(!x||typeof x!=="object")return null;
  const o={id:x.id>0&&Number.isFinite(+x.id)?+x.id:Date.now()+i,name:str(x.name,60),url:str(x.url,500),fav:x.fav?1:0};if(!o.name||!o.url)return null;
- const cl=[...new Set([...(Array.isArray(x.cs)?x.cs:[]),x.cat].map(c=>str(c,24).trim()).filter(Boolean))].slice(0,8);if(cl.length)o.cs=cl;const dsc=str(x.ds,200).trim();if(dsc)o.ds=dsc;if(+x.n>0)o.n=Math.min(+x.n|0,1e6);if(+x.t>0)o.t=+x.t;
+ const cl=[...new Set([...(Array.isArray(x.cs)?x.cs:[]),x.cat].map(c=>str(c,24).trim()).filter(Boolean))].slice(0,8);if(cl.length)o.cs=cl;const dsc=str(x.ds,200).trim();if(dsc)o.ds=dsc;if(+x.n>0)o.n=Math.min(+x.n|0,1e6);if(+x.t>0)o.t=+x.t;if(typeof x.br==="string"&&x.br.length<=100&&/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(x.br))o.br=x.br;
  if(ENCR.test(x.u||""))o.u=x.u;if(ENCR.test(x.p||""))o.p=x.p;const c=x.ic;
  if(c&&c.t==="img"&&IMGR.test(c.v||"")&&c.v.length<200000)o.ic={t:"img",v:c.v};
  else if(c&&c.t==="L")o.ic={t:"L"};
@@ -75,7 +75,8 @@ try{if(localStorage.getItem("wh_bk")===null)localStorage.setItem("wh_bk",Date.no
 const bkDue=()=>sites.length>=3&&Date.now()-bkGet("wh_bk")>2592e6&&Date.now()-bkGet("wh_bks")>6048e5;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm=u=>{u=String(u||"").trim();if(!/^[a-z][a-z0-9+.-]*:\/\//i.test(u))u="https://"+u;try{const x=new URL(u);return/^https?:$/.test(x.protocol)?x.href:"about:blank"}catch(e){return"about:blank"}};
-const openSite=s=>{const u=norm(s.url);if(u==="about:blank")return toast("URL ঠিক নেই");s.n=(s.n||0)+1;s.t=Date.now();save(1);LOG.push([s.id,s.t]);LOG=LOG.slice(-1500);try{localStorage.setItem("wh_log",JSON.stringify(LOG))}catch(e){}window.open(u,"_blank","noopener,noreferrer")};
+const openIn=(u,pk)=>window.HO_openSite?HO_openSite(u,pk):window.open(u,"_blank","noopener,noreferrer");
+const openSite=s=>{const u=norm(s.url);if(u==="about:blank")return toast("URL ঠিক নেই");s.n=(s.n||0)+1;s.t=Date.now();save(1);LOG.push([s.id,s.t]);LOG=LOG.slice(-1500);try{localStorage.setItem("wh_log",JSON.stringify(LOG))}catch(e){}openIn(u,s.br)};
 const host=u=>{try{return new URL(norm(u)).hostname.replace(/^www\./,"")||u}catch(e){return u}};
 const color=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 55% 50%)`};
 const initial=n=>{const t=n.trim();let g;try{g=[...new Intl.Segmenter("bn",{granularity:"grapheme"}).segment(t)][0].segment}catch(e){g=[...t][0]}return esc((g||"?").toUpperCase())};
@@ -260,7 +261,7 @@ function bulkAdd(){
 const ic=n=>`<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`,bi=(n,t)=>ic(n)+t;
 function settings(m){
  $("#chips").innerHTML="";
- const SUB={lang:"অ্যাপের ভাষা বদলান",look:"থিম, রঙ ও লেআউট",cat:"গ্রুপ ও ক্রম সাজান",logo:"সাইটের লোগো",stats:"সাপ্তাহিক ব্যবহার",tools:"ইমপোর্ট, এক্সপোর্ট ও আপডেট",bin:"মুছে ফেলা সাইট ফিরিয়ে আনুন",priv:"অ্যাপ-লক ও লুকানো ক্যাটাগরি",sec:"পিন ও এনক্রিপশন",bk:"ডেটা সেভ ও রিস্টোর",use:"ইনস্টল ও গাইড",about:"অ্যাপ ও ডেভেলপার"};
+ const SUB={brw:"সাইট কোন ব্রাউজারে খুলবে",lang:"অ্যাপের ভাষা বদলান",look:"থিম, রঙ ও লেআউট",cat:"গ্রুপ ও ক্রম সাজান",logo:"সাইটের লোগো",stats:"সাপ্তাহিক ব্যবহার",tools:"ইমপোর্ট, এক্সপোর্ট ও আপডেট",bin:"মুছে ফেলা সাইট ফিরিয়ে আনুন",priv:"অ্যাপ-লক ও লুকানো ক্যাটাগরি",sec:"পিন ও এনক্রিপশন",bk:"ডেটা সেভ ও রিস্টোর",use:"ইনস্টল ও গাইড",about:"অ্যাপ ও ডেভেলপার"};
  const grp=t=>`<p class="grp">${t}</p>`;
  const hero=()=>{const vs=vsites();return `<div class="hero"><div class="hd"><img src="${esc(($("#applogo")||{}).src||"icon-192.png")}" width="56" height="56" alt=""><div><b>Heart <em>Orbit</em></b><small>পছন্দের সব ওয়েবসাইট এক জায়গায়</small></div></div><div class="hs"><div><strong>${bn(vs.length)}</strong><span>সাইট</span></div><div><strong>${bn(vs.filter(s=>s.fav).length)}</strong><span>প্রিয়</span></div><div><strong>${bn(cats().filter(c=>showHid||!P.hid.includes(c)).length)}</strong><span>ক্যাটাগরি</span></div></div></div>`};
  const sec=(id,t,b)=>{const q=t.indexOf("|");return `<details class="card" data-sec="${id}"${oS.has(id)?" open":""}><summary><span class="st"><span class="ib">${ic(t.slice(0,q))}</span><span class="tt"><b>${t.slice(q+1)}</b><small>${SUB[id]||""}</small></span></span></summary><div class="cb">${b}</div></details>`};
@@ -270,6 +271,7 @@ function settings(m){
  +sec("look","palette|চেহারা",`<p class="lbl">থিম</p>${seg("theme",[["auto","অটো"],["dark","ডার্ক"],["light","লাইট"]])}<p class="lbl">রঙ</p><div class="sws">${[345,265,175,38,215].map(h=>`<button class="sw${P.accent===h?" on":""}" style="--s:${h}" data-p="accent" data-v="${h}" aria-label="রঙ বাছুন"></button>`).join("")}</div><p class="lbl">দেখানোর ধরন</p>${seg("view",[["grid","গ্রিড"],["list","লিস্ট"]])}<p class="lbl">প্রতি সারিতে আইকন</p>${seg("cols",[[3,"৩টি"],[4,"৪টি"],[5,"৫টি"]])}${tog("dsc","আইকনের নিচে বিবরণ")}${tog("sg2","সময় অনুযায়ী পরামর্শ (হোমে)")}${tog("rcv","সম্প্রতি খোলা দেখান (হোমে)")}<button class="btn w" id="rcc" style="margin:6px 0">${ic("trash")}সম্প্রতি খোলা তালিকা মুছুন</button><p class="lbl">লেখার আকার</p>${seg("fs",[[0,"সাধারণ"],[1,"বড়"],[2,"আরও বড়"]])}${tog("hc","হাই কন্ট্রাস্ট")}<p class="lbl">সাজানো</p>${seg("sort",[["added","নিজের ক্রম"],["name","নাম"],["used","বেশি ব্যবহৃত"]])}`)
  +sec("cat","folder|ক্যাটাগরি ও ক্রম",`${tog("group","হোমে ক্যাটাগরি অনুযায়ী গ্রুপ")}<button class="btn w" id="cmb">${ic("folder")}ক্যাটাগরি সাজান ও ম্যানেজ</button><button class="btn w" id="rob2">${ic("sort")}আইকনের ক্রম সাজান</button>`)
  +sec("logo","image|লোগো",`<p>সাইটের নিজের লোগো থাকলে সেটি দেখানো হয়, না থাকলে অ্যাপের লোগো।</p>${tog("auto","সাইটের লোগো অনলাইন থেকে আনা")}<p class="hint" style="margin-top:8px">চালু থাকলে সাইটের ডোমেইন নাম গুগলের লোগো সার্ভিসে যায়।</p>`)
+ +(window.HO_NATIVE?sec("brw","globe|ব্রাউজার",`<p class="hint">সব সাইট এই ব্রাউজারে খুলবে। কোনো সাইটের জন্য আলাদা ব্রাউজার চাইলে সাইট এডিট করে বাছুন।</p><select id="dbr"><option value="">সিস্টেম ডিফল্ট</option></select>`):"")
  +grp("ডেটা ও টুলস")
  +sec("stats","chart|ব্যবহারের পরিসংখ্যান",statsHtml())
  +sec("tools","tools|টুলস",`<p class="hint">CSV ও বুকমার্ক ফাইলে পাসওয়ার্ড থাকে না।</p><button class="btn w" id="bpb">${ic("clip")}অনেক URL পেস্ট করুন</button><button class="btn w" id="csv">${ic("download")}CSV নামান</button><button class="btn w" id="bmx">${ic("download")}বুকমার্ক ফাইল (HTML)</button><button class="btn w" id="upd">${ic("refresh")}আপডেট খুঁজুন</button>${window.HO_NATIVE?`<div class="trow"><span>সাপ্তাহিক ব্যাকআপ রিমাইন্ডার</span><button type="button" role="switch" class="tg${HO_native.bkOn()?" on":""}" aria-checked="${HO_native.bkOn()}" aria-label="সাপ্তাহিক ব্যাকআপ রিমাইন্ডার" id="ntb"></button></div><div class="trow"><span>অটো আপডেট চেক</span><button type="button" role="switch" class="tg${HO_native.upOn()?" on":""}" aria-checked="${HO_native.upOn()}" aria-label="অটো আপডেট চেক" id="ntu"></button></div><p class="hint">আপডেট চেকে শুধু GitHub থেকে সর্বশেষ ভার্সনের নম্বর দেখা হয়; আপনার কোনো ডেটা পাঠানো হয় না। রিমাইন্ডার প্রতি শুক্রবার রাত ৮টায়।</p>`:""}`)
@@ -292,6 +294,7 @@ function settings(m){
  if($("#stc"))$("#stc").onclick=()=>{const now=Date.now(),D=864e5,ids=new Set(vsites().filter(s=>(s.t||0)<now-90*D&&(s.id>1e14?s.id/1000:s.id)<now-90*D).map(s=>s.id));ask(bn(ids.size)+"টি সাইট বিনে পাঠাবেন?",()=>toBin(ids))};
  $("#bpb").onclick=bulkAdd;$("#csv").onclick=expCsv;$("#bmx").onclick=expBk;
  if($("#ntb"))$("#ntb").onclick=async e=>{const b=e.currentTarget,on=await HO_native.toggleBk();b.classList.toggle("on",on);b.setAttribute("aria-checked",String(on));toast(on?"রিমাইন্ডার চালু হয়েছে":HO_native.denied?"নোটিফিকেশনের অনুমতি নেই। ফোনের সেটিংস থেকে অনুমতি দিন":"রিমাইন্ডার বন্ধ হয়েছে")};  if($("#ntu"))$("#ntu").onclick=e=>{const b=e.currentTarget,on=HO_native.toggleUp();b.classList.toggle("on",on);b.setAttribute("aria-checked",String(on));toast(on?"অটো আপডেট চেক চালু":"অটো আপডেট চেক বন্ধ")};  $("#upd").onclick=()=>{if(window.HO_NATIVE)return HO_native.check(true);if(!("serviceWorker"in navigator))return toast("আপডেট সাপোর্ট নেই");navigator.serviceWorker.getRegistration().then(r=>{if(r)r.update()}).catch(()=>{});toast("আপডেট খোঁজা হয়েছে। নতুন সংস্করণ থাকলে জানানো হবে।")};
+ if($("#dbr"))HO_native.browsers().then(l=>{const el=$("#dbr");if(!el)return;const cur=HO_native.getDefault();el.innerHTML='<option value="">সিস্টেম ডিফল্ট</option>'+l.map(b=>`<option value="${esc(b.pkg)}"${b.pkg===cur?" selected":""}>${esc(b.label)}</option>`).join("")+(cur&&!l.some(b=>b.pkg===cur)?`<option value="${esc(cur)}" selected>${esc(HO_native.label(cur))}</option>`:"");el.onchange=()=>{HO_native.setDefault(el.value);toast(el.value?"ব্রাউজার বদলানো হয়েছে":"সিস্টেম ডিফল্ট ব্রাউজার ব্যবহার হবে")}});
  $("#cmb").onclick=()=>catMgr();
  $("#rob2").onclick=()=>{tab="home";cat="";ro=true;if(P.sort!=="added"){P.sort="added";savePrefs()}setNav()};
  $("#rcc").onclick=()=>{P.rcx=Date.now();savePrefs();render();toast("সম্প্রতি খোলা তালিকা মুছে ফেলা হয়েছে")};
@@ -321,7 +324,7 @@ function setNav(){document.querySelectorAll("nav button").forEach(b=>b.classList
 /* ---- add / edit ---- */
 function form(s,d){
  const n=!s;s=s||{};d=d||{};let ic=d.ic!==undefined?d.ic:(s.ic||null),xu=0,xp=0;const fv=n&&(tab==="fav"||cat==="__fav");
- const sel=new Set(d.cs||s.cs||(n&&cat&&cat!=="__fav"?[cat]:[])),nw=[...sel].filter(c=>!cats().includes(c));
+ const sel=new Set(d.cs||s.cs||(n&&cat&&cat!=="__fav"?[cat]:[])),nw=[...sel].filter(c=>!cats().includes(c));const cb=d.br!==undefined?d.br:(s.br||"");
  openSheet(`<h3>${n?"নতুন ওয়েবসাইট":"এডিট করুন"}</h3>
  <label>ওয়েবসাইটের নাম</label><input id="fn" maxlength="60" value="${esc(d.name??s.name)}" placeholder="যেমন: ফেসবুক">
  <label>URL</label><input id="fu" value="${esc(d.url??s.url)}" placeholder="facebook.com" inputmode="url" autocapitalize="off" autocomplete="off">
@@ -332,15 +335,17 @@ function form(s,d){
  <button type="button" class="btn sm" id="la">🌐 অটো</button><button type="button" class="btn sm" id="lr">🎲 এলোমেলো</button>
  <button type="button" class="btn sm" id="lu">🖼 ছবি</button><button type="button" class="btn sm" id="ll">Aa অক্ষর</button><input type="file" id="lf" accept="image/*" hidden></div></div>
  <p class="hint">অটো: সাইটের নিজের লোগো আসবে, না থাকলে অ্যাপের লোগো।</p>
+ ${window.HO_NATIVE?`<label>কোন ব্রাউজারে খুলবে</label><select id="fbr"><option value="">ডিফল্ট (সেটিংসের ব্রাউজার)</option>${cb?`<option value="${esc(cb)}" selected>${esc(HO_native.label(cb))}</option>`:""}</select>`:""}
  <label>আইডি / ইমেইল (ঐচ্ছিক)</label><input id="fi2" autocomplete="off" value="${esc(d.u)}" placeholder="${s.u?"বদলাতে নতুন আইডি লিখুন":""}">
  <label>পাসওয়ার্ড (ঐচ্ছিক)</label><input id="fp" type="password" autocomplete="new-password" value="${esc(d.p)}" placeholder="${s.p?"বদলাতে নতুন পাসওয়ার্ড লিখুন":""}">
  <p class="hint">আইডি/পাসওয়ার্ড দিলে পিন দিয়ে লক হয়ে ফোনেই থাকবে।</p>${s.u||s.p?`<div class="rw">${s.u?'<button type="button" class="btn sm" id="xu">🗑 সেভ করা আইডি মুছুন</button>':""}${s.p?'<button type="button" class="btn sm" id="xp">🗑 সেভ করা পাসওয়ার্ড মুছুন</button>':""}</div>`:""}
  <div class="row"><button class="btn" data-close="1">বাতিল</button><button class="btn p" id="fs">সেভ করুন</button></div>`);
- const dd=()=>({name:$("#fn").value,url:$("#fu").value,u:$("#fi2").value,p:$("#fp").value,ds:$("#fd").value,cs:[...sel],ic});
+ const dd=()=>({name:$("#fn").value,url:$("#fu").value,u:$("#fi2").value,p:$("#fp").value,ds:$("#fd").value,cs:[...sel],br:$("#fbr")?$("#fbr").value:undefined,ic});
  const pv=()=>{$("#lp").innerHTML=icoHtml({name:$("#fn").value||"?",url:$("#fu").value,ic})};
  const cp=()=>{$("#cpk").innerHTML=[...vcats(),...nw].map(c=>`<button type="button" class="cp${sel.has(c)?" on":""}" data-k="${esc(c)}">${sel.has(c)?"✓ ":""}${esc(c)}</button>`).join("")||'<span class="hint">এখনো কোনো ক্যাটাগরি নেই। নিচে নাম লিখে যোগ করুন।</span>'};
  const addc=()=>{const v=$("#cnw").value.trim().slice(0,24);if(!v)return;if(!sel.has(v)&&sel.size>=8)return toast("একটি সাইটে সর্বোচ্চ ৮টি ক্যাটাগরি");if(![...cats(),...nw].includes(v))nw.push(v);sel.add(v);$("#cnw").value="";cp()};
  cp();pv();
+ if($("#fbr"))HO_native.browsers().then(l=>{const el=$("#fbr");if(!el)return;el.innerHTML='<option value="">ডিফল্ট (সেটিংসের ব্রাউজার)</option>'+l.map(b=>`<option value="${esc(b.pkg)}"${b.pkg===cb?" selected":""}>${esc(b.label)}</option>`).join("")+(cb&&!l.some(b=>b.pkg===cb)?`<option value="${esc(cb)}" selected>${esc(HO_native.label(cb))}</option>`:"")});
  $("#cpk").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=b.dataset.k;if(sel.has(k))sel.delete(k);else if(sel.size>=8)return toast("একটি সাইটে সর্বোচ্চ ৮টি ক্যাটাগরি");else sel.add(k);cp()};
  $("#cna").onclick=addc;$("#cnw").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();addc()}};
  $("#cso").onclick=()=>{const x=dd();cLog=[];catMgr(()=>{x.cs=x.cs.map(c=>{for(const[o,v]of cLog)if(c===o)c=v;return c}).filter(Boolean);cLog=[];form(n?null:s,x)})};
@@ -354,10 +359,10 @@ function form(s,d){
  if($("#xp"))$("#xp").onclick=()=>{xp=1;$("#xp").disabled=true;$("#xp").textContent="সেভ করলে মুছে যাবে"};
  $("#fs").onclick=()=>{
   const pend=$("#cnw").value.trim().slice(0,24);if(pend)sel.add(pend);
-  const name=$("#fn").value.trim().slice(0,60),url=$("#fu").value.trim().slice(0,500),u=$("#fi2").value,p=$("#fp").value,ds=$("#fd").value.trim().slice(0,200),cl=[...sel].slice(0,8);
+  const name=$("#fn").value.trim().slice(0,60),url=$("#fu").value.trim().slice(0,500),u=$("#fi2").value,p=$("#fp").value,ds=$("#fd").value.trim().slice(0,200),cl=[...sel].slice(0,8),brv=$("#fbr")?$("#fbr").value:undefined;
   if(!name||!url)return toast("নাম ও URL দিন");
   if(norm(url)==="about:blank")return toast("URL ঠিক নেই");
-  const fin=async()=>{const o=n?{id:Date.now(),fav:fv?1:0,n:0}:s;o.name=name;o.url=url;if(ds)o.ds=ds;else delete o.ds;if(ic)o.ic=ic;else delete o.ic;
+  const fin=async()=>{const o=n?{id:Date.now(),fav:fv?1:0,n:0}:s;o.name=name;o.url=url;if(brv!==undefined){if(brv)o.br=brv;else delete o.br}if(ds)o.ds=ds;else delete o.ds;if(ic)o.ic=ic;else delete o.ic;
    cl.forEach(c=>{if(!cats().includes(c)){CATS=cats();CATS.push(c);saveCats()}});if(cl.length)o.cs=cl;else delete o.cs;delete o.cat;
    if(xu&&!u)delete o.u;if(xp&&!p)delete o.p;
    if(u||p){if(u)o.u=await enc(u);if(p)o.p=await enc(p)}
@@ -372,7 +377,7 @@ function detail(id){
  const s=sites.find(x=>x.id===id);if(!s)return;
  openSheet(`<div class="dh"><div class="wrap">${icoHtml(s)}</div><div><h3>${esc(s.name)}</h3><p class="hint">${esc(host(s.url))}${s.n?" · "+bn(s.n)+" বার খোলা":""}</p>${(s.cs||[]).length?`<p class="hint">🗂 ${esc(s.cs.join("، "))}</p>`:""}</div></div>
  ${s.ds?`<p class="ds">${esc(s.ds)}</p>`:'<p class="hint">এই সাইটের কাজ লেখা নেই। ✎ এডিট থেকে যোগ করতে পারেন।</p>'}
- <button class="btn p w" id="do">ক্রোমে খুলুন</button>
+ <button class="btn p w" id="do">${window.HO_NATIVE?"ব্রাউজারে খুলুন":"ক্রোমে খুলুন"}</button>
  ${s.u||s.p?`<div class="row">${s.u?'<button class="btn" id="cu">আইডি কপি</button>':""}${s.p?'<button class="btn" id="cp">পাসওয়ার্ড কপি</button>':""}</div>`:""}
  <div class="row"><button class="btn" id="df">${s.fav?"★ প্রিয় সরান":"☆ প্রিয়"}</button><button class="btn" id="de">✎ এডিট</button></div>
  <button class="btn d w" id="dd">🗑 রিমুভ করুন</button>`);
@@ -575,7 +580,7 @@ async function vtry(a){const m=vm;let k=null,L=null;
  m.f=0;m.l=0;vput();vview();return true}
 const vci=c=>c&&c.t==="img"&&IMGR.test(c.v||"")&&c.v.length<100000?{t:"img",v:c.v}:c&&c.t==="L"?{t:"L"}:mOk(c)?mOk(c):gOk(c)?gOk(c):c&&c.t==="e"&&EMO.includes(c.v)?{t:"e",v:c.v,h:(+c.h||0)%360}:null;
 const vico=x=>`<div class="wrap">${icoHtml(x)}</div>`;
-const vopn=x=>{const u=norm(x.url);if(u==="about:blank")return toast("URL ঠিক নেই");window.open(u,"_blank","noopener,noreferrer")};
+const vopn=x=>{const u=norm(x.url);if(u==="about:blank")return toast("URL ঠিক নেই");openIn(u,x.br)};
 function vview(){vkill();
  openSheet(`<div class="row" style="margin:0 0 10px;justify-content:flex-end;gap:0"><button class="mo" id="vtl" aria-label="আরও">⋯</button><button class="mo" id="vcl" aria-label="বন্ধ করুন">✕</button></div><div class="grid" id="vgd">${vl.map(x=>`<div class="app" role="button" tabindex="0" data-vo="${x.id}">${vico(x)}<span class="nm">${esc(x.name)}</span></div>`).join("")}<div class="app" role="button" tabindex="0" data-vadd="1"><div class="wrap"><div class="ico" style="background:var(--sf2);color:var(--ac)"><svg class="i" style="width:28px;height:28px"><use href="#i-plus"/></svg></div></div><span class="nm">যোগ করুন</span></div></div>`);
  $("#vcl").onclick=closeSheet;$("#vtl").onclick=vtools;
@@ -588,7 +593,7 @@ function vview(){vkill();
  g.onkeydown=e=>{if(e.key==="Enter"&&e.target.dataset&&(e.target.dataset.vo!==undefined||e.target.dataset.vadd!==undefined))e.target.click()}}
 function vdet(id){
  const x=vl.find(z=>z.id===id);if(!x)return vview();
- openSheet(`<div class="dh">${vico(x)}<div><h3>${esc(x.name)}</h3><p class="hint">${esc(host(x.url))}</p></div></div><button class="btn p w" id="vdo">ক্রোমে খুলুন</button><div class="row"><button class="btn" id="vde">✎ এডিট</button><button class="btn d" id="vdd">🗑 রিমুভ করুন</button></div><button class="btn w" id="vdb">পিছনে</button>`);
+ openSheet(`<div class="dh">${vico(x)}<div><h3>${esc(x.name)}</h3><p class="hint">${esc(host(x.url))}</p></div></div><button class="btn p w" id="vdo">${window.HO_NATIVE?"ব্রাউজারে খুলুন":"ক্রোমে খুলুন"}</button><div class="row"><button class="btn" id="vde">✎ এডিট</button><button class="btn d" id="vdd">🗑 রিমুভ করুন</button></div><button class="btn w" id="vdb">পিছনে</button>`);
  let arm=0;$("#vdb").onclick=()=>vview();$("#vdo").onclick=()=>vopn(x);$("#vde").onclick=()=>vform(id);
  $("#vdd").onclick=()=>{if(!arm){arm=1;$("#vdd").textContent="হ্যাঁ, মুছুন";return}vl=vl.filter(z=>z.id!==id);vpersist(()=>vview())}}
 function vform(id){

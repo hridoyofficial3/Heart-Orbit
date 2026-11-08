@@ -21,10 +21,7 @@ for d, m in dens.items():
     out.paste(r, (0, 0), circle)
     out.save(os.path.join(p, 'ic_launcher_round.png'))
     f = int(108 * m)
-    canvas = Image.new('RGBA', (f, f), BG)
-    inner = int(f * 0.75)
-    canvas.paste(mask_src.resize((inner, inner), Image.LANCZOS), ((f - inner) // 2, (f - inner) // 2))
-    canvas.save(os.path.join(p, 'ic_launcher_foreground.png'))
+    Image.open('adaptive-foreground.png').convert('RGBA').resize((f, f), Image.LANCZOS).save(os.path.join(p, 'ic_launcher_foreground.png'))
 
 v26 = os.path.join(res, 'mipmap-anydpi-v26')
 os.makedirs(v26, exist_ok=True)
@@ -40,7 +37,7 @@ for n in ('ic_launcher', 'ic_launcher_round'):
 vals = os.path.join(res, 'values')
 os.makedirs(vals, exist_ok=True)
 open(os.path.join(vals, 'ic_launcher_background.xml'), 'w').write(
-    '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#0c0b16</color>\n</resources>\n')
+    '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#d4fbed</color>\n</resources>\n')
 
 for root, _, files in os.walk(res):
     for fn in files:
