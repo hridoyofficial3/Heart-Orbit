@@ -40,6 +40,16 @@ jobs:
           npm install
           npx cap add android
 
+      - name: Browser picker plugin
+        run: |
+          P=android/app/src/main/java/com/hridoy/heartorbit
+          test -d "$P"
+          cp android-plugin/BrowserPickerPlugin.java android-plugin/MainActivity.java "$P"/
+          M=android/app/src/main/AndroidManifest.xml
+          # Android 11+: allow the app to see which browsers are installed
+          grep -q "<queries>" "$M" || sed -i 's#</manifest>#    <queries>\n        <intent>\n            <action android:name="android.intent.action.VIEW" />\n            <category android:name="android.intent.category.BROWSABLE" />\n            <data android:scheme="https" />\n        </intent>\n    </queries>\n</manifest>#' "$M"
+          grep -q "<queries>" "$M"
+
       - name: Icons, splash and version
         run: |
           pip install pillow
